@@ -51,8 +51,6 @@ summary(m5)
 ```{r}
 y=SPY.lrtn-mean(SPY.lrtn)
 resi=residuals(m4,standardize=T)
-acf(resi)
-pacf(resi^2)
 ArchTest(y,20,demean = FALSE)
 Box.test(y^2,20,type='Ljung')
 ```
