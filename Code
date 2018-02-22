@@ -1,0 +1,67 @@
+```{r}
+library(quantmod)
+library(fBasics)
+library(moments)
+library(fUnitRoots)
+library(fGarch)
+library(FinTS)
+```
+
+```{r}
+SPY<-read.table('SPY.csv',header=F, sep=",")
+head(SPY)
+```
+
+```{r}
+P_SPY=SPY[,2]
+SPY.lrtn=diff(log(P_SPY)) 
+plot(SPY[2:253,1],SPY.lrtn,type="l",xlab='Time',ylab='LRTN')
+```
+
+```{r}
+mean(SPY.lrtn)
+sd(SPY.lrtn)
+s3=skewness(SPY.lrtn)
+s3
+s4=kurtosis(SPY.lrtn)
+s4
+dif=max(SPY.lrtn)-min(SPY.lrtn)
+dif
+hist(SPY.lrtn,nclass=30)
+lines(density(SPY.lrtn), col="red", lwd=3)   
+xfit<-seq(min(SPY.lrtn),max(SPY.lrtn),length=40)
+yfit<-dnorm(xfit,mean(SPY.lrtn),sd(SPY.lrtn))
+lines(xfit,yfit,col="blue",lwd=3)
+acf(SPY.lrtn)
+pacf(SPY.lrtn)
+unitrootTest(SPY.lrtn)
+```
+```{r}
+m1=garchFit(~1+garch(1,0),data=SPY.lrtn,trace = F)
+m2=garchFit(~1+garch(2,0),data=SPY.lrtn,trace = F)
+m3=garchFit(~1+garch(3,0),data=SPY.lrtn,trace = F)
+m4=garchFit(~1+garch(4,0),data=SPY.lrtn,trace = F)
+m5=garchFit(~1+garch(5,0),data=SPY.lrtn,trace = F)
+summary(m1)
+summary(m2)
+summary(m3)
+summary(m4)
+summary(m5)
+```
+```{r}
+y=SPY.lrtn-mean(SPY.lrtn)
+resi=residuals(m4,standardize=T)
+ArchTest(y,20,demean = FALSE)
+Box.test(y^2,20,type='Ljung')
+```
+
+
+```{r}
+tdx=c(1:252)+12
+plot(tdx,resi^2,xlab='days',ylab='resi^2',type='l')
+```
+
+```{r}
+m6=garchFit(~1+garch(1,1),data=SPY.lrtn,trace = F)
+summary(m6)
+```
